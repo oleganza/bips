@@ -1,0 +1,142 @@
+<pre>
+  BIP: 81
+  Title: Hierarchical wallets encryption scheme
+  Author: Oleg Andreev <oleganza@gmail.com>
+  Status: Draft
+  Type: Standards Track
+  Created: 2014-07-27
+</pre>
+
+==Abstract==
+
+This BIP describes a scheme to encrypt, identify and decrypt wallet backups using a single master key.
+
+==Motivation==
+
+Hierarchical wallet ([[bip-0032.mediawiki|BIP 32]]) allows user to back up the master key 
+only once in a convenient location under user's control. User can safely send and receive funds
+without a need to back up his wallet after every transaction. Later all funds can be restored 
+with just a single master key that could have been backed up in the past.
+
+Unfortunately, if the wallet stores additional metadata about transaction (e.g. custom notes 
+or P2SH scripts), those must be backed up as soon as possible or even as a prerequisite 
+to a transaction. Asking user to back up the wallet in his favorite location would be inconvenient.
+However, we may encrypt the wallet with high-entropy key derived from the wallet's master key and 
+back up the encrypted wallet on a convenient 3rd party service (or services) automatically. 
+This automatic backup could be retrieved and decrypted with a master key when the user restores the wallet
+from his personal backup.
+
+Since automatic backups are not encrypted with keys derived from the user's password, but with key derived
+from unpredictable 256-bit master key, it is safe to put such backup on any service. The only requirement is 
+availability: the service must be available when the user requests the backup.
+
+
+==Specification==
+
+This scheme uses purpose code 81 (see [[bip-0043.mediawiki|BIP 43]]) to derive necessary keys 
+that are used as follows (apostrophe means hardened derivation):
+
+Authentication Key (m/81'/0') is used to identify the wallet and sign its encrypted content.
+
+Encryption Key (m/81'/1') is used to encrypt/decrypt the backup.
+
+Initialization Vector Key (m/81'/2'/i') is used to generate an unpredictable IV for each backup. Wallet software is free to choose any random IV (or even the same one every time), but this BIP provides a good default method that does not use RNG on the device.
+
+
+===How to encrypt the wallet===
+
+* Generate authentication key by deriving EC key from master key with the following path: m/81'/0' (see [[bip-0032.mediawiki|BIP 32]]).
+* Generate encryption key by deriving EC key from master key with the following path: m/81'/1'. Take the binary representation of the private key exponent as a 256-bit AES encryption key. If it is too short, pad it with 0x00 bytes from the end until the key is 256 bits long.
+* Generate initialization vector by deriving it using path m/81'/2'/i' (i is incremented for each backup and stored within the wallet). Take the last 128 bits of the compressed public key as an IV.
+* Serialize wallet in a binary string according to the wallet software format. 
+* Encrypt the wallet using AES-CBC and initialization vector. Do not include extra 128 bits of the output (used for chaining with next blocks in CBC mode).
+* Compose the following Encrypted Payload (|| denotes concatenation): 
+
+  Version || AuthFingerprint || IV || LengthPrefix || WalletCiphertext || SigLengthPrefix || Signature
+
+Where:
+
+* Version byte is the encryption version. 81 (0x51) is the first version, equal to this BIP number.
+* AuthFingerprint is 20-byte long RIPEMD160(SHA256()) of the Authentication Public Key that identifies the wallet.
+* IV is a 16-byte Initialization Vector for AES-CBC.
+* LengthPrefix is 4-byte little-endian length prefix for the ciphertext that follows.
+* SigLengthPrefix is 1-byte length prefix for the signature.
+* Signature signs all the preceding bytes (including version byte, not including SigLengthPrefix) using SHA256(SHA256()) and ECDSA on secp256k1.
+
+The produced string can be safely backed up on any server without risk of being decrypted by bruteforce (as long as the master seed of the wallet is not itself produced from a passphrase and contains at least 128 bits of entropy).
+
+Note that to decrypt the wallet, user needs to restore his master key from his personal backup. 
+
+
+===How to decrypt the wallet===
+
+User must have master key available already (e.g. from his personal backup).
+
+* Derive the authentication key from the master key.
+* Request the latest backup identified by that authentication key from a backup service.
+* Receive the encrypted payload from a backup service.
+* Derive authentication key from the master key.
+* Check the signature using authentication key. If the signature is invalid, reject the backup.
+* Derive an Encryption Key from the master key.
+* Decrypt the wallet ciphertext using Encryption Key and IV from the payload.
+
+Wallet application may check the timestamp within the wallet contents to determine how old is the backup and reject it if it becomes obsolete.
+
+
+==TODO==
+
+* Does it make sense to extend the BIP with encrypting the wallet with a password, so we have a single standard for initial (or manual) wallet backup protected by the user's passphrase (or some external key) and for automatic backups?
+* It would be nice to standardize a simple (optionally paid) backup service API over HTTP.
+
+
+==Implementations==
+
+TODO: list implementations in various languages and libs.
+
+
+==Test Vectors==
+
+FIXME: these strings are fake. To be replaced by results from the reference implementation.
+
+Test vector 1:
+
+  Inputs:
+    Decrypted contents (interpret as ASCII string): "seed:test1 iv:0"
+    Wallet master seed: "test1"
+    IV index: 0
+  
+  Outputs:
+    Authentication private key: ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb  
+    Encryption key:             3e23e8160039594a33894f6564e1b1348bbd7a0088d42c4acb73eeaed59c009d
+    IV:                         2e7d2c03a9507ae265ecf5b5356885a53393a2029d241394997265a1a25aefc6
+    Encrypted payload:          5153e0bb460dcbeac079df17080750b81881846b0df3dd1568d0f631ca1ddba8db3bcfcb9e057cdc9800000010ebbfb53547b778a125159d0de39c0be04302a651bd9a6b94a9bd378ce65f5a8e490387b5e99addebedd46bd20356d7ff01f4baf901d1b9fcc11a9d3c714fda524455a9875aececc7a30b202a058bc696e6
+
+Test vector 2:
+
+  Inputs:
+    Decrypted contents (interpret as ASCII string): "seed:test1 iv:1"
+    Wallet master seed: "test1"
+    IV index: 1
+
+  Outputs:
+    Authentication private key: ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb  
+    Encryption key:             3e23e8160039594a33894f6564e1b1348bbd7a0088d42c4acb73eeaed59c009d
+    IV:                         ef53a63a4897219bef334105e2858a0261320132c246f438dade07f3ab565165
+    Encrypted payload:          5153e0bb460dcbeac079df17080750b81881846b0df3dd1568d0f631ca1ddba8db3bcfcb9e057cdc9800000010ebbfb53547b778a125159d0de39c0be04302a651bd9a6b94a9bd378ce65f5a8e490387b5e99addebedd46bd20356d7ff01f4baf901d1b9fcc11a9d3c714fda524455a9875aececc7a30b202a058bc696e6
+
+Test vector 3:
+
+  Inputs:
+    Decrypted contents (interpret as ASCII string): "seed:test2 iv:3"
+    Wallet master seed: "test2"
+    IV index: 3
+
+  Outputs:
+    Authentication private key: 7aead8c7990168bb80b1b4b65d307a87bcd63296bf8e0d0356d66cdf20a12f9a  
+    Encryption key:             d0fb39932953529e5bd0d33597eac7daf38d2243c2a8da5a8286acb35a350634
+    IV:                         eb662aca27c645559e4ae0ab917ab3a6e9d544a2b904b6bfb4d9cd6e6b813c7d
+    Encrypted payload:          5153e0bb460dcbeac079df17080750b81881846b0df3dd1568d0f631ca1ddba8db3bcfcb9e057cdc9800000010ebbfb53547b778a125159d0de39c0be04302a651bd9a6b94a9bd378ce65f5a8e490387b5e99addebedd46bd20356d7ff01f4baf901d1b9fcc11a9d3c714fda524455a9875aececc7a30b202a058bc696e6
+
+
+
+
