@@ -1,10 +1,10 @@
 <pre>
-  BIP: 81
+  BIP: not assigned yet
   Title: Automatic Encrypted Wallet Backups
   Author: Oleg Andreev <oleganza@gmail.com>
   Status: Draft
   Type: Standards Track
-  Created: 2014-07-27
+  Created: 2014-08-06
 </pre>
 
 ==Abstract==
@@ -36,11 +36,13 @@ availability: the service must be available when the user requests the backup.
 This scheme uses purpose code 81 (see [[bip-0043.mediawiki|BIP 43]]) to derive necessary keys 
 that are used as follows (apostrophe means hardened derivation):
 
-Authentication Key (m/81'/0') is used to identify the wallet and sign its encrypted content.
+TODO: replace 81 with this BIP's code when it is assigned.
+
+Authentication Key (m/81'/0) is used to identify the wallet and sign its encrypted content (non-hardened derivation).
 
 Encryption Key (m/81'/1') is used to encrypt/decrypt the backup.
 
-Initialization Vector Key (m/81'/2'/i') is used to generate an unpredictable IV for each backup. Wallet software is free to choose any random IV (or even the same one every time), but this BIP provides a good default method that does not use RNG on the device.
+Initialization Vector Key (m/81'/2'/i') is used to generate an unpredictable IV for each backup. Wallet software is free to choose any random IV (or even the same one every time), but this BIP provides a good default method that does not use RNG on the device and yet provides unique IV per each backup.
 
 
 ===How to encrypt the wallet===
@@ -49,23 +51,29 @@ Initialization Vector Key (m/81'/2'/i') is used to generate an unpredictable IV 
 * Generate encryption key by deriving EC key from master key with the following path: m/81'/1'. Take the binary representation of the private key exponent as a 256-bit AES encryption key. If it is too short, pad it with 0x00 bytes from the end until the key is 256 bits long.
 * Generate initialization vector by deriving it using path m/81'/2'/i' (i is incremented for each backup and stored within the wallet). Take the last 128 bits of the compressed public key as an IV.
 * Serialize wallet in a binary string according to the wallet software format. 
-* Encrypt the wallet using AES-CBC and initialization vector. Do not include extra 128 bits of the output (used for chaining with next blocks in CBC mode).
+* Encrypt the wallet using AES-CBC and PKCS7 padding and an initialization vector. Do not include extra 128 bits of the output (used for chaining with next blocks in CBC mode).
 * Compose the following Encrypted Payload (|| denotes concatenation): 
 
-  Version || AuthFingerprint || IV || LengthPrefix || WalletCiphertext || SigLengthPrefix || Signature
+  Version || Timestamp || IV || LengthPrefix || WalletCiphertext || CompactSignature
 
 Where:
 
 * Version byte is the encryption version. 81 (0x51) is the first version, equal to this BIP number.
-* AuthFingerprint is 20-byte long RIPEMD160(SHA256()) of the Authentication Public Key that identifies the wallet.
+* Timestamp is a 4-byte unix timestamp marking a date when the backup was created. This allows the wallet to check if the backup is fresh enough to be decrypted and imported.
 * IV is a 16-byte Initialization Vector for AES-CBC.
 * LengthPrefix is 4-byte little-endian length prefix for the ciphertext that follows.
-* SigLengthPrefix is 1-byte length prefix for the signature.
-* Signature signs all the preceding bytes (including version byte, not including SigLengthPrefix) using SHA256(SHA256()) and ECDSA on secp256k1.
+* WalletCiphertext is wallet serialized content encrypted with AES-CBC using PKCS7 padding. Does not include extra 16 bytes emitted for chaining with additional data.
+* CompactSignature is a fixed-length 65-byte signature of all the preceding bytes (including version byte) created according to "CompactSignature" algorithm in Bitcoin Core. Authentication pubkey is derived from the signature itself.
+
+Total length is 1 + 4 + 16 + 4 + 65 + ciphertext length (90 bytes of metadata + ciphertext length). 
 
 The produced string can be safely backed up on any server without risk of being decrypted by bruteforce (as long as the master seed of the wallet is not itself produced from a passphrase and contains at least 128 bits of entropy).
 
-Note that to decrypt the wallet, user needs to restore his master key from his personal backup. 
+Note 1: to decrypt the wallet, user needs to restore his master key from his personal backup. 
+
+Note 2: IV is deterministic, but not static. Wallet is supposed to increment IV's derivation index for each backup (using m/81'/2'/i' path) .
+
+Note 3: Authentication key is not hardened so the wallet may keep it's pubkey in memory and verify various payloads without annoying the user with password inputs or fingerprint scanning. For the same reason the timestamp is provided right within the payload. HMAC would require keeping the secret in memory while ECDSA verification only needs a public key.
 
 
 ===How to decrypt the wallet===
