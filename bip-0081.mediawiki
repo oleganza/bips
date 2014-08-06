@@ -1,6 +1,6 @@
 <pre>
   BIP: 81
-  Title: Hierarchical wallets encryption scheme
+  Title: Automatic Encrypted Wallet Backups
   Author: Oleg Andreev <oleganza@gmail.com>
   Status: Draft
   Type: Standards Track
@@ -9,18 +9,18 @@
 
 ==Abstract==
 
-This BIP describes a scheme to encrypt, identify and decrypt wallet backups using a single master key.
+This BIP describes a scheme to encrypt, identify and decrypt wallet backups using a wallet's master key.
 
 ==Motivation==
 
-Hierarchical wallet ([[bip-0032.mediawiki|BIP 32]]) allows user to back up the master key 
+Hierarchical wallet scheme ([[bip-0032.mediawiki|BIP 32]]) allows user to back up the master key 
 only once in a convenient location under user's control. User can safely send and receive funds
 without a need to back up his wallet after every transaction. Later all funds can be restored 
 with just a single master key that could have been backed up in the past.
 
-Unfortunately, if the wallet stores additional metadata about transaction (e.g. custom notes 
-or P2SH scripts), those must be backed up as soon as possible or even as a prerequisite 
-to a transaction. Asking user to back up the wallet in his favorite location would be inconvenient.
+The problem arises when the wallet needs to store additional metadata about transaction (e.g. custom notes 
+or scripts for redeeming P2SH payments), those must be backed up as soon as possible or even as a prerequisite 
+to a transaction. Frequently asking the user to back up their wallet would be inconvenient.
 However, we may encrypt the wallet with high-entropy key derived from the wallet's master key and 
 back up the encrypted wallet on a convenient 3rd party service (or services) automatically. 
 This automatic backup could be retrieved and decrypted with a master key when the user restores the wallet
