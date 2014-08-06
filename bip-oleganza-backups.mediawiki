@@ -80,15 +80,15 @@ Note 3: Authentication key is not hardened so the wallet may keep it's pubkey in
 
 User must have master key available already (e.g. from his personal backup).
 
-* Derive the authentication key from the master key.
-* Request the latest backup identified by that authentication key from a backup service.
+* Derive the authentication pubkey from the extended public key m/81' using path m/81'/0.
+* Request the latest backup identified by that authentication pubkey from a backup service. Use Hash160 of the pubkey as a unique identifier.
 * Receive the encrypted payload from a backup service.
-* Derive authentication key from the master key.
 * Check the signature using authentication key. If the signature is invalid, reject the backup.
+* Request user permission to unlock master private key to derive private keys from it.
 * Derive an Encryption Key from the master key.
 * Decrypt the wallet ciphertext using Encryption Key and IV from the payload.
 
-Wallet application may check the timestamp within the wallet contents to determine how old is the backup and reject it if it becomes obsolete.
+Wallet application may check the timestamp within the payload to determine how old is the backup and reject it if it becomes obsolete before even attempting to decrypt it.
 
 
 ==TODO==
