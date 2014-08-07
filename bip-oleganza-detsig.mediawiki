@@ -25,6 +25,8 @@ ECDSA signature requires choosing an unpredictable k value for each signature. U
 
 Making ECDSA signatures completely deterministic solves all these issues.
 
+This BIP also defines canonical format for standard and compact signatures. The goal is to have a single specification for every developer who implements Bitcoin signatures.
+
 
 ==Why not simply using RFC 6979?==
 
