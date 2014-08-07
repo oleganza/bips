@@ -53,6 +53,8 @@ Bitcoin uses two kinds of signatures: standard ECDSA and slightly tweaked Compac
   end
 
 * Serialize R and S values in DER format and return the result.
+* TODO: expand on what the DER format is so people do not need to read about it elsewhere.
+
 
 ===Compact Signature===
 
