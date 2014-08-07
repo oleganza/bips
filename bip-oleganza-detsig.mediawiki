@@ -44,7 +44,7 @@ Bitcoin uses two kinds of signatures: standard ECDSA and slightly tweaked Compac
 * If the k value is greater or equal the order of secp256k1, append one byte 0x01 to a message hash and repeat.
 * Keep adding 0x01 byte to the message hash until a valid value k is found. Note that probability of finding invalid k value in the first place is below 2^-128.
 * Compute ECDSA signature as usual.
-* Make sure that S value is even. Do it like so (pseudo code):
+* Make sure that S value is even (pseudo code):
 
   if s > (n >> 1)
     s = n - s
