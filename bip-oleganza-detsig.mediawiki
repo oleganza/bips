@@ -34,9 +34,7 @@ Bitcoin uses two kinds of signatures: standard ECDSA and slightly tweaked Compac
 
 * Given a message hash and a private key, use the following algorithm to derive k value:
 
-  k = HMAC-SHA512(data: MessageHash, key: PrivateKey)[0,32]
-  
-  (where [0,32] means first 32 bytes of the result)
+  k = first 32 bytes of HMAC-SHA512(data: MessageHash, key: PrivateKey)
   
 * If the k value does not belong to the interval [0, n] (n is the order of secp256k1), append one byte 0x01 to a message hash and repeat.
 * Keep adding 0x01 byte to the message hash until a valid value k is found. Note that probability of finding invalid k value in the first place is below 2^-128.
