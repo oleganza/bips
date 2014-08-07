@@ -55,10 +55,10 @@ Bitcoin uses two kinds of signatures: standard ECDSA and slightly tweaked Compac
 * The k value is unique to a given message and a private key. Different message or different private key will produce entirely different signature.
 * Unpredictability of k is provided by HMAC-SHA512 collision resistance property and unpredictability of the private key.
 * Some people do not feel comfortable feeding a private key into a hash function.
-  * Reply 1: That's safer than feeding the private key into EC math and also the resulting k is never published anyway. 
-  * Reply 2: Also, the private key is most probably coming through ([[bip-0032.mediawiki|BIP 32]]) which means that important secrets are already produced by the exact same algorithm.
+** Reply 1: That's safer than feeding the private key into EC math and also the resulting k is never published anyway. 
+** Reply 2: Also, the private key is most probably coming through ([[bip-0032.mediawiki|BIP 32]]) which means that important secrets are already produced by the exact same algorithm.
 
-* Something more to say on security?
+* Something else to say on security?
 
 
 ==Implementations==
