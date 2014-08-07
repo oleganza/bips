@@ -1,6 +1,6 @@
 <pre>
   BIP: not assigned yet
-  Title: Deterministic Signatures
+  Title: Canonical Deterministic Signatures
   Author: Oleg Andreev <oleganza@gmail.com>
   Status: Draft
   Type: Standards Track
@@ -26,9 +26,17 @@ ECDSA signature requires choosing an unpredictable k value for each signature. U
 Making ECDSA signatures completely deterministic solves all these issues.
 
 
+==Why not simply using RFC 6979?==
+
+* RFC 6979 is not used by anyone and is unnecessary complex.
+* It's preferrable to reuse existing hash functions like double-SHA256 or HMAC-SHA512 since they are heavily used in Bitcoin infrastructure already.
+* This BIP also specifies canonical ECDSA signature and CompactSignature algorithm. Those are out of scope of RFC 6979.
+
+
 ==Specification==
 
 Bitcoin uses two kinds of signatures: standard ECDSA and slightly tweaked CompactSignature that allows recovering public key from it (so you do not need to carry public key along with it).
+
 
 ===Standard Signature===
 
