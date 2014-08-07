@@ -33,7 +33,7 @@ Bitcoin uses two kinds of signatures: standard ECDSA and slightly tweaked Compac
 ===Standard Signature===
 
 * Given a message hash and a private key, generate k as first 32 bytes of HMAC-SHA512(Key = PrivateKey, Data = MessageHash).
-* If the k value does not belong to the interval [ 0, n ] (n is the order of secp256k1), append one byte 0x01 to a message hash and repeat.
+* If the k value is greater or equal the order of secp256k1, append one byte 0x01 to a message hash and repeat.
 * Keep adding 0x01 byte to the message hash until a valid value k is found. Note that probability of finding invalid k value in the first place is below 2^-128.
 * Compute ECDSA signature as usual.
 * Make sure that S value is even. Do it like so (pseudo code):
