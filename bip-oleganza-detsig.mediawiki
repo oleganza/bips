@@ -1,0 +1,76 @@
+<pre>
+  BIP: not assigned yet
+  Title: Deterministic Signatures
+  Author: Oleg Andreev <oleganza@gmail.com>
+  Status: Draft
+  Type: Standards Track
+  Created: 2014-08-07
+</pre>
+
+==Abstract==
+
+This BIP describes a recommended way to produce fully deterministic ECDSA signatures for Bitcoin.
+We also describe a canonical signature format to limit malleability of Bitcoin transactions.
+Both types of signatures are covered: standard ECDSA signatures and "compact" Bitcoin-specific signatures 
+(those used for signing messages and allow to recover a public key from them).
+
+
+==Motivation==
+
+ECDSA signature requires choosing an unpredictable k value for each signature. Usually, this value is produced using RNG, sometimes mixed with the message hash and/or private key. There are several hazards associated with that practice:
+
+* Weak or maliciously crafted (backdoored) RNG could make k more predictable and therefore allow attacker extract private key from observed signatures.
+* Signatures created by hardware or non-open source software are impossible to audit for not leaking bits of private key via R value.
+* Impossible to test correctness of various implementations using test vectors.
+
+Making ECDSA signatures completely deterministic solves all these issues.
+
+
+==Specification==
+
+Bitcoin uses two kinds of signatures: standard ECDSA and slightly tweaked CompactSignature that allows recovering public key from it (so you do not need to carry public key along with it).
+
+===Standard Signature===
+
+* Given a message hash and a private key, use the following algorithm to derive k value:
+
+  k = HMAC-SHA512(data: MessageHash, key: PrivateKey)[0,32]
+  
+  (where [0,32] means first 32 bytes of the result)
+  
+* If the k value does not belong to the interval [0, n] (n is the order of secp256k1), append one byte 0x01 to a message hash and repeat.
+* Keep adding 0x01 byte to the message hash until a valid value k is found. Note that probability of finding invalid k value in the first place is below 2^-128.
+* Compute ECDSA signature as usual.
+* Make sure that S value is even. Do it like so (pseudo code):
+
+  if s > (n >> 1)
+    s = n - s
+  end
+
+* Serialize R and S values in DER format and return the result.
+
+===Compact Signature===
+
+* Compute Standard Signature as described in the previous section.
+* TODO: explain how to make a compact signature according to the algorithm.
+
+
+==Security Analysis==
+
+* The k value is unique to a given message and a private key. Different message or different private key will produce entirely different signature.
+* Unpredictability of k is provided by HMAC-SHA512 collision resistance property and unpredictability of the private key.
+* Some people do not feel comfortable feeding a private key into a hash function.
+  * Reply 1: That's safer than feeding the private key into EC math and also the resulting k is never published anyway. 
+  * Reply 2: Also, the private key is most probably coming through ([[bip-0032.mediawiki|BIP 32]]) which means that important secrets are already produced by the exact same algorithm.
+
+* Something more to say on security?
+
+
+==Implementations==
+
+TODO: list implementations in various languages and libs.
+
+
+==Test Vectors==
+
+TODO: test vectors
