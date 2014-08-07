@@ -38,7 +38,7 @@ that are used as follows (apostrophe means hardened derivation):
 
 TODO: replace 81 with this BIP's code when it is assigned.
 
-Authentication Key (m/81'/0) is used to identify the wallet and sign its encrypted content (non-hardened derivation).
+Authentication Key (m/81'/0') is used to identify the wallet and sign its encrypted content.
 
 Encryption Key (m/81'/1') is used to encrypt/decrypt the backup.
 
@@ -73,15 +73,15 @@ Note 1: to decrypt the wallet, user needs to restore his master key from his per
 
 Note 2: IV is deterministic, but not static. Wallet is supposed to increment IV's derivation index for each backup (using m/81'/2'/i' path) .
 
-Note 3: Authentication key is not hardened so the wallet may keep it's pubkey in memory and verify various payloads without annoying the user with password inputs or fingerprint scanning. For the same reason the timestamp is provided right within the payload. HMAC would require keeping the secret in memory while ECDSA verification only needs a public key.
+Note 3: Wallet may keep unecnrypted Authentication public key to verify various payloads without annoying the user with password inputs or fingerprint scanning. For the same reason the timestamp is provided right within the payload. HMAC would require keeping the secret in memory while ECDSA verification only needs a public key.
 
 
 ===How to decrypt the wallet===
 
 User must have master key available already (e.g. from his personal backup).
 
-* Derive the authentication pubkey from the extended public key m/81' using path m/81'/0.
-* Request the latest backup identified by that authentication pubkey from a backup service. Use Hash160 of the pubkey as a unique identifier.
+* Derive the authentication pubkey using path m/81'/0'.
+* Request the latest backup identified by that authentication pubkey from a backup service. Recommended to use Hash160 of the pubkey as a unique identifier.
 * Receive the encrypted payload from a backup service.
 * Check the signature using authentication key. If the signature is invalid, reject the backup.
 * Request user permission to unlock master private key to derive private keys from it.
@@ -109,9 +109,10 @@ FIXME: these strings are fake. To be replaced by results from the reference impl
 Test vector 1:
 
   Inputs:
-    Decrypted contents (interpret as ASCII string): "seed:test1 iv:0"
+    Decrypted contents (interpret as ASCII string, 14 bytes): "seed:test iv:0"
     Wallet master seed: "test1"
     IV index: 0
+    Timestamp: 1407399428 (0x53e3360e)
   
   Outputs:
     Authentication private key: ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb  
@@ -122,9 +123,10 @@ Test vector 1:
 Test vector 2:
 
   Inputs:
-    Decrypted contents (interpret as ASCII string): "seed:test1 iv:1"
+    Decrypted contents (interpret as ASCII string, 15 bytes): "seed:test1 iv:1"
     Wallet master seed: "test1"
     IV index: 1
+    Timestamp: 1407399428 (0x53e3360e)
 
   Outputs:
     Authentication private key: ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb  
@@ -135,9 +137,10 @@ Test vector 2:
 Test vector 3:
 
   Inputs:
-    Decrypted contents (interpret as ASCII string): "seed:test2 iv:3"
+    Decrypted contents (interpret as ASCII string, 16 bytes): "seed:test22 iv:3"
     Wallet master seed: "test2"
     IV index: 3
+    Timestamp: 1407399428 (0x53e3360e)
 
   Outputs:
     Authentication private key: 7aead8c7990168bb80b1b4b65d307a87bcd63296bf8e0d0356d66cdf20a12f9a  
