@@ -56,10 +56,19 @@ Bitcoin uses two kinds of signatures: standard ECDSA and slightly tweaked Compac
 * TODO: expand on what the DER format is so people do not need to read about it elsewhere.
 
 
+===Verify Standard Signature===
+
+* TODO: explain an algorithm to verify the signature with reference to ubiquitous OpenSSL functions.
+
+
 ===Compact Signature===
 
 * Compute Standard Signature as described in the previous section.
 * TODO: explain how to make a compact signature according to the algorithm.
+
+===Verify Compact Signature===
+
+* TODO: explain an algorithm to verify the signature and how to extract a public key from it.
 
 
 ==Security Analysis==
