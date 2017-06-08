@@ -9,6 +9,8 @@
   Created: 2009-01-03
 </pre>
 
+==Specification==
+
 The first rule of Bitcoin is: you buy Bitcoin.
 
 The second rule of Bitcoin is: you hodl Bitcoin.
@@ -24,3 +26,21 @@ Sixth rule: you store your own private keys.
 Seventh rule: Bitcoin will go on as long as it has to. 
 
 And the eighth and final rule: If this is your first day in Bitcoin, you have to buy Bitcoin.
+
+==Spelling of HODL==
+
+When HODL is used as a noun (a state of mind), it is capitalized.
+
+When hodl is used as a verb (act of willpower), it has normal capitalization. Unless extra emphasis is necessary.
+
+Bitcoin does not care in any case.
+
+Examples:
+
+<blockquote>
+Man, do you even hodl?
+</blockquote>
+
+<blockquote>
+HODL is the philosophy of Bitcoin.
+</blockquote>
