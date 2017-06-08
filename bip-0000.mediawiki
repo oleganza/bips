@@ -44,3 +44,7 @@ Man, do you even hodl?
 <blockquote>
 HODL is the philosophy of Bitcoin.
 </blockquote>
+
+==References==
+
+[1] https://bitcointalk.org/index.php?topic=375643.0
