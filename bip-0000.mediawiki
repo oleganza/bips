@@ -25,7 +25,7 @@ Sixth rule: you store your own private keys.
 
 Seventh rule: Bitcoin will go on as long as it has to. 
 
-And the eighth and final rule: If this is your first day in Bitcoin, you have to buy Bitcoin.
+And the eighth and final rule: If this is your first day in Bitcoin, you have to [read the whitepaper](http://bitcoin.org/bitcoin.pdf).
 
 ==Spelling of HODL==
 
@@ -47,4 +47,6 @@ HODL is the philosophy of Bitcoin.
 
 ==References==
 
-[1] https://bitcointalk.org/index.php?topic=375643.0
+[1] [Bitcoin: A Peer-to-Peer Electronic Cash System](http://bitcoin.org/bitcoin.pdf)
+
+[2] [Discovery of the HODL](https://bitcointalk.org/index.php?topic=375643.0)
