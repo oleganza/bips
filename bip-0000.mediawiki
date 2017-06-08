@@ -1,0 +1,26 @@
+<pre>
+  BIP: 0
+  Title: HODL
+  Author: anonymous
+  Comments-Summary: No comments yet.
+  Comments-URI: https://github.com/bitcoin/bips/wiki/Comments:BIP-0000
+  Status: Active
+  Type: Process
+  Created: 2009-01-03
+</pre>
+
+The first rule of Bitcoin is: you buy Bitcoin.
+
+The second rule of Bitcoin is: you hodl Bitcoin.
+
+Third rule of Bitcoin: someone yells stop, goes limp, taps out, you hodl Bitcoin.
+
+Fourth rule: no one changes Bitcoin except by full consensus.
+
+Fifth rule: one soft fork at a time, fellas.
+
+Sixth rule: you store your own private keys.
+
+Seventh rule: Bitcoin will go on as long as it has to. 
+
+And the eighth and final rule: If this is your first day in Bitcoin, you have to buy Bitcoin.
